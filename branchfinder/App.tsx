@@ -39,7 +39,7 @@ function App() {
     const loadBranches = async () => {
       const data = await fetchBranches();
       if (data && data.length > 0) {
-        setBranches(data);
+        setBranches(data.filter(b => b.show_on_map !== false));
       } else {
         // Fallback to mock data if fetch fails or returns empty
         setBranches(BRANCH_DB);

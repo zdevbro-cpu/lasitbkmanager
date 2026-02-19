@@ -8,6 +8,7 @@ export interface Branch {
   lng: number;
   description: string;
   manager: string;
+  show_on_map: boolean;
 }
 
 export interface ChatMessage {

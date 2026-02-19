@@ -45,17 +45,17 @@ export const fetchBranches = async (): Promise<Branch[]> => {
         if ((lat === null || lng === null) && item.address) {
             console.log(`Missing coordinates for ${item.name}, attempting to geocode...`);
             const coords = await addressToCoordinates(item.address);
-            
+
             if (coords) {
                 lat = coords.lat;
                 lng = coords.lng;
-                
+
                 // Update Supabase with new coordinates
                 const { error: updateError } = await supabase
                     .from('branches')
                     .update({ lat, lng })
                     .eq('id', item.id);
-                    
+
                 if (updateError) {
                     console.error(`Failed to update coordinates for ${item.name}:`, updateError);
                 } else {
@@ -75,7 +75,8 @@ export const fetchBranches = async (): Promise<Branch[]> => {
             lat: lat ?? Number.NaN,
             lng: lng ?? Number.NaN,
             description: item.description,
-            manager: item.manager
+            manager: item.manager,
+            show_on_map: item.show_on_map ?? true
         };
     }));
 
@@ -132,6 +133,7 @@ export const createBranch = async (
                 lng,
                 description: branchData.description,
                 manager: branchData.manager,
+                show_on_map: branchData.show_on_map,
             }
         ])
         .select()

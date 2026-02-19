@@ -18,7 +18,8 @@ export const BRANCH_DB: Branch[] = [
     lat: 37.4979,
     lng: 127.0276,
     description: 'Our main flagship store located in the heart of Gangnam. Features the full range of premium products and a VIP lounge.',
-    manager: 'Kim Min-su'
+    manager: 'Kim Min-su',
+    show_on_map: true
   },
   {
     id: '2',
@@ -29,7 +30,8 @@ export const BRANCH_DB: Branch[] = [
     lat: 37.5575,
     lng: 126.9245,
     description: 'Located near Hongik University, this branch focuses on creative tools and hosts weekly workshops.',
-    manager: 'Lee Ji-young'
+    manager: 'Lee Ji-young',
+    show_on_map: true
   },
   {
     id: '3',
@@ -40,7 +42,8 @@ export const BRANCH_DB: Branch[] = [
     lat: 37.5219,
     lng: 126.9243,
     description: 'Serving the business district with express services and corporate solutions.',
-    manager: 'Park Sung-hoon'
+    manager: 'Park Sung-hoon',
+    show_on_map: true
   },
   {
     id: '4',
@@ -51,7 +54,8 @@ export const BRANCH_DB: Branch[] = [
     lat: 37.5340,
     lng: 126.9940,
     description: 'Multilingual staff available. Specializes in international shipping and global product lines.',
-    manager: 'Sarah Choi'
+    manager: 'Sarah Choi',
+    show_on_map: true
   },
   {
     id: '5',
@@ -62,6 +66,7 @@ export const BRANCH_DB: Branch[] = [
     lat: 37.5133,
     lng: 127.1001,
     description: 'Located within the mall complex. Large showroom with family-friendly experience zones.',
-    manager: 'Jung Woo-sung'
+    manager: 'Jung Woo-sung',
+    show_on_map: true
   }
 ];

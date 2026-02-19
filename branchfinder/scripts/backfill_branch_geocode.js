@@ -2,7 +2,9 @@ import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import { createClient } from '@supabase/supabase-js';
 
-dotenv.config();
+// Load .env first, then .env.local overrides (same priority as Vite)
+dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.local', override: true });
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
