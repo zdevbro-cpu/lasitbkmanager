@@ -5,6 +5,8 @@ import * as ctrl from '../../controllers/admin/staff.controller';
 const router = Router();
 
 router.get('/me', requireAdmin, ctrl.getMe);
+router.get('/qr/:code', requireAdmin, ctrl.getByQr);
+router.get('/name/:name', requireAdmin, ctrl.getByName);
 router.get('/', requireSystemAdmin, ctrl.list);
 router.post('/', requireSystemAdmin, ctrl.create);
 router.put('/:id', requireSystemAdmin, ctrl.update);

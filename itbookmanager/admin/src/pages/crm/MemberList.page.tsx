@@ -7,13 +7,11 @@ import { useAuth } from '../../context/AuthContext';
 import { storesService } from '../../services/stores.service';
 import type { Store } from '../../services/stores.service';
 
-type StatusTab = '' | 'pending' | 'active' | 'suspended' | 'pending_withdrawal' | 'ended' | 'withdrawn';
+type StatusTab = 'active' | 'suspended' | 'pending_withdrawal' | 'ended' | 'withdrawn';
 
 const STATUS_TABS: { value: StatusTab; label: string }[] = [
-  { value: '',                   label: '활성 회원' },
-  { value: 'pending',            label: '가입대기' },
-  { value: 'active',             label: '정상' },
-  { value: 'suspended',          label: '일시중단' },
+  { value: 'active',             label: '정상회원' },
+  { value: 'suspended',          label: '일시중지' },
   { value: 'pending_withdrawal', label: '탈퇴대기' },
   { value: 'ended',              label: '종료' },
   { value: 'withdrawn',          label: '탈퇴' },
@@ -26,18 +24,32 @@ export default function MemberListPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState(''); // 상시 입력값
+  const [search, setSearch] = useState(''); // 지연 반영값
   const [filterType, setFilterType] = useState('');
-  const [filterStatus, setFilterStatus] = useState<StatusTab>('');
+  const [filterStatus, setFilterStatus] = useState<StatusTab>('active');
   const [filterStore, setFilterStore] = useState('');
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
+  const [tabCounts, setTabCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (isSystemAdmin) {
-      storesService.list().then(setStores).catch(console.error);
-    }
-  }, [isSystemAdmin]);
+    storesService.list().then(data => {
+      const sorted = [...data].sort((a, b) => a.name.localeCompare(b.name, 'ko-KR'));
+      if (!isSystemAdmin && adminUser?.store_id) {
+        setStores(sorted.filter(s => s.id === adminUser.store_id));
+        setFilterStore(adminUser.store_id);
+      } else {
+        setStores(sorted);
+      }
+    }).catch(console.error);
+  }, [isSystemAdmin, adminUser]);
+
+  // 검색어 디바운싱
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(query), 350);
+    return () => clearTimeout(t);
+  }, [query]);
 
   const fetchMembers = useCallback(async () => {
     setLoading(true);
@@ -64,6 +76,11 @@ export default function MemberListPage() {
 
   useEffect(() => { void fetchMembers(); }, [fetchMembers]);
 
+  useEffect(() => {
+    const storeId = filterStore || undefined;
+    membersService.statusCounts(storeId).then(setTabCounts).catch(() => {});
+  }, [filterStore]);
+
   const handleTabChange = (tab: StatusTab) => {
     setFilterStatus(tab);
     setPage(1);
@@ -75,7 +92,13 @@ export default function MemberListPage() {
     <div>
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">회원관리</h2>
+          <h2 className="text-xl font-semibold text-gray-900">회원관리
+            {filterStore && stores.find(s => s.id === filterStore) && (
+              <span className="ml-2 text-base font-normal text-blue-600">
+                — {stores.find(s => s.id === filterStore)!.name}
+              </span>
+            )}
+          </h2>
           <p className="text-sm text-gray-500 mt-0.5">총 {total}명</p>
         </div>
         <button
@@ -99,9 +122,11 @@ export default function MemberListPage() {
             }`}
           >
             {tab.label}
-            {tab.value === 'withdrawn' && (
-              <span className="ml-1 text-xs text-gray-400">(마스킹)</span>
-            )}
+            {(() => {
+              const n = tabCounts[tab.value];
+              if (!n) return null;
+              return <span className="ml-1 text-xs opacity-70">({n})</span>;
+            })()}
           </button>
         ))}
       </div>
@@ -111,8 +136,8 @@ export default function MemberListPage() {
         <input
           type="text"
           placeholder="이름, 이메일, 연락처, 회원번호 검색"
-          value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
+          value={query}
+          onChange={e => { setQuery(e.target.value); setPage(1); }}
           className="flex-1 min-w-48 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {isSystemAdmin && (
@@ -120,7 +145,7 @@ export default function MemberListPage() {
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option value="">전체 매장</option>
             {stores.map(s => (
-              <option key={s.id} value={s.id}>{s.code} {s.name}</option>
+              <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
         )}
@@ -165,7 +190,7 @@ export default function MemberListPage() {
                 <td className="px-4 py-3 text-gray-600">{m.phone ?? '-'}</td>
                 <td className="px-4 py-3"><TypeBadge type={m.member_type} /></td>
                 <td className="px-4 py-3"><StatusBadge status={m.member_status} /></td>
-                {isSystemAdmin && <td className="px-4 py-3 text-xs text-gray-500">{m.store_code ? `${m.store_code} ${m.store_name ?? ''}` : '-'}</td>}
+                {isSystemAdmin && <td className="px-4 py-3 text-xs text-gray-500">{m.store_name || m.store_code || '-'}</td>}
                 <td className="px-4 py-3 text-gray-500">{m.joined_at ? m.joined_at.slice(0, 10) : '-'}</td>
               </tr>
             ))}

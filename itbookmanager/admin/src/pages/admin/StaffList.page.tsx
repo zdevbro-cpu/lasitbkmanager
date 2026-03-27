@@ -157,7 +157,7 @@ export default function StaffListPage() {
                       {ROLE_LABELS[s.role]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{s.store_code ? `${s.store_code} ${s.store_name ?? ''}` : '-'}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500">{s.store_name ?? '-'}</td>
                   <td className="px-4 py-3 text-gray-600">{s.phone || '-'}</td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${s.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
@@ -251,7 +251,7 @@ export default function StaffListPage() {
                       >
                         <option value="">매장 선택 필수</option>
                         {stores.map(s => (
-                          <option key={s.id} value={s.id}>{s.code} {s.name}</option>
+                          <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
                       </select>
                     </div>
@@ -328,7 +328,7 @@ export default function StaffListPage() {
                 >
                   <option value="">미배정</option>
                   {stores.map(s => (
-                    <option key={s.id} value={s.id}>{s.code} {s.name}</option>
+                    <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
                 </select>
               </div>

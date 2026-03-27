@@ -39,14 +39,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 세션 가져오기 및 상태 구독
     supabase.auth.getSession().then(({ data: { session } }) => {
-      handleUserChange(session?.user ?? null);
+      handleUserChange(session?.user ?? null, session?.access_token);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        handleUserChange(session?.user ?? null);
+        handleUserChange(session?.user ?? null, session?.access_token);
       }
     );
 
@@ -55,15 +54,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const handleUserChange = async (u: User | null) => {
+  const handleUserChange = async (u: User | null, accessToken?: string) => {
     setUser(u);
     if (u) {
       try {
-        const res = await apiClient.get<AdminUser>('/staff/me');
-        console.log('DEBUG: adminUser fetched:', res.data);
+        const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+        const res = await apiClient.get<AdminUser>('/staff/me', { headers });
         setAdminUser(res.data);
       } catch (err) {
-        console.error('DEBUG: staff/me fetch failed:', err);
+        console.error('staff/me fetch failed:', err);
         setAdminUser(null);
       }
     } else {

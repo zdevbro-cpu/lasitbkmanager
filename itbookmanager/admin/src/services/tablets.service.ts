@@ -7,7 +7,7 @@ export interface Tablet {
   serial_number?: string;
   purchase_date?: string;
   purchase_price?: number;
-  status: 'stock' | 'loaned' | 'returned' | 'repair' | 'lost';
+  status: 'stock' | 'loaned' | 'returned' | 'repair' | 'lost' | 'assigned';
   current_member_id?: string;
   member_name?: string;
   member_number?: string;
@@ -18,6 +18,7 @@ export interface Tablet {
   store_code?: string | null;
   store_name?: string | null;
   sub_store_name?: string | null;
+  loan_officer_name?: string | null;
 }
 
 export interface TabletLoan {
@@ -35,6 +36,14 @@ export interface TabletLoan {
 export interface TabletListResult {
   data: Tablet[];
   total: number;
+  statusCounts?: {
+    total: number;
+    stock: number;
+    assigned: number;
+    loaned: number;
+    repair: number;
+    lost: number;
+  };
   page: number;
   limit: number;
 }
@@ -55,8 +64,8 @@ export const tabletsService = {
   update: (id: string, data: { modelName?: string; serialNumber?: string; purchaseDate?: string; purchasePrice?: number; notes?: string; subStoreName?: string | null }) =>
     apiClient.put<Tablet>(`/tablets/${id}`, data).then(r => r.data),
 
-  loan: (id: string, memberId: string, processedBy?: string) =>
-    apiClient.post<Tablet>(`/tablets/${id}/loan`, { memberId, processedBy }).then(r => r.data),
+  loan: (id: string, memberId: string | null, processedBy?: string, officerName?: string) =>
+    apiClient.post<Tablet>(`/tablets/${id}/loan`, { memberId, processedBy, officerName }).then(r => r.data),
 
   return: (id: string, conditionOk: boolean, conditionNotes?: string) =>
     apiClient.post<Tablet>(`/tablets/${id}/return`, { conditionOk, conditionNotes }).then(r => r.data),
@@ -75,8 +84,8 @@ export const tabletsService = {
   batchCreate: (tablets: Array<{ modelName?: string; serialNumber?: string; purchaseDate?: string; purchasePrice?: number; notes?: string; storeId?: string; subStoreName?: string }>) =>
     apiClient.post<{ created: number; tablets: Tablet[] }>('/tablets/batch', { tablets }).then(r => r.data),
 
-  bulkAssignStore: (tabletIds: string[], storeId: string | null) =>
-    apiClient.patch<{ updated: number }>('/tablets/bulk-assign', { tabletIds, storeId }).then(r => r.data),
+  bulkAssignStore: (tabletIds: string[], storeId: string | null, isRelease = false) =>
+    apiClient.patch<{ updated: number }>('/tablets/bulk-assign', { tabletIds, storeId, isRelease }).then(r => r.data),
 
   bulkAssignSubStore: (tabletIds: string[], subStoreName: string | null) =>
     apiClient.patch<{ updated: number }>('/tablets/bulk-sub-store', { tabletIds, subStoreName }).then(r => r.data),

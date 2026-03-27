@@ -40,8 +40,13 @@ export async function list(req: Request, res: Response) {
 
 export async function getOne(req: Request, res: Response) {
   try {
+    console.log('[DEBUG] getOne params.id:', req.params.id);
     const member = await membersService.getMemberById(req.params.id);
-    if (!member) return res.status(404).json({ error: 'Member not found' });
+    if (!member) {
+      console.warn('[DEBUG] getOne member not found for ID:', req.params.id);
+      return res.status(404).json({ error: 'Member not found' });
+    }
+    console.log('[DEBUG] getOne member found:', member.name);
     res.json(member);
   } catch (err) {
     res.status(500).json({ error: String(err) });
@@ -125,6 +130,29 @@ export async function remove(req: Request, res: Response) {
     const result = await membersService.deleteMember(req.params.id);
     if (!result) return res.status(404).json({ error: 'Member not found' });
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+}
+
+export async function statusCounts(req: Request, res: Response) {
+  try {
+    const storeId = req.user?.role === 'store_manager'
+      ? (req.user.storeId ?? undefined)
+      : (req.query.storeId as string | undefined);
+    const counts = await membersService.getStatusCounts(storeId);
+    res.json(counts);
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+}
+
+export async function checkEmail(req: Request, res: Response) {
+  try {
+    const { email } = req.query as { email: string };
+    if (!email) return res.status(400).json({ error: 'email query required' });
+    const isDuplicate = await membersService.isEmailDuplicate(email);
+    res.json({ isDuplicate });
   } catch (err) {
     res.status(500).json({ error: String(err) });
   }

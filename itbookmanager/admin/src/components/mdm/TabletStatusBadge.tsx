@@ -4,6 +4,7 @@ const STATUS_MAP = {
   returned: { label: '회수됨', cls: 'bg-gray-100 text-gray-600' },
   repair:   { label: '수리중', cls: 'bg-yellow-100 text-yellow-700' },
   lost:     { label: '분실',   cls: 'bg-red-100 text-red-700' },
+  assigned: { label: '배정',   cls: 'bg-indigo-100 text-indigo-800' },
 };
 
 const ACTION_MAP: Record<string, string> = {

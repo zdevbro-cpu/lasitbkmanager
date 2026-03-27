@@ -11,15 +11,19 @@ export interface Store {
 }
 
 export async function listStores(includeInactive = false): Promise<Store[]> {
-  const where = includeInactive ? '' : 'WHERE is_active = TRUE';
-  const result = await db.query(
-    `SELECT * FROM branches ${where} ORDER BY code ASC`
-  );
-  return result.rows;
+  try {
+    const where = includeInactive ? '' : 'WHERE is_active = TRUE';
+    const result = await db.query(`SELECT * FROM branches ${where} ORDER BY code ASC`);
+    return result.rows;
+  } catch {
+    // branches에 is_active 컬럼이 없는 경우 fallback
+    const result = await db.query('SELECT * FROM branches ORDER BY code ASC');
+    return result.rows;
+  }
 }
 
 export async function getStoreById(id: string): Promise<Store | null> {
-  const result = await db.query('SELECT * FROM branches WHERE id = $1', [id]);
+  const result = await db.query('SELECT * FROM branches WHERE id::text = $1', [id]);
   return result.rows[0] ?? null;
 }
 
@@ -52,7 +56,7 @@ export async function updateStore(id: string, data: {
   if (fields.length === 0) return getStoreById(id);
   values.push(id);
   const result = await db.query(
-    `UPDATE branches SET ${fields.join(', ')} WHERE id = $${i} RETURNING *`,
+    `UPDATE branches SET ${fields.join(', ')} WHERE id::text = $${i} RETURNING *`,
     values
   );
   return result.rows[0] ?? null;

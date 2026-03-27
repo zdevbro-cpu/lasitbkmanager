@@ -86,4 +86,10 @@ export const membersService = {
 
   getQrImageBlob: (id: string) =>
     apiClient.get<Blob>(`/members/${id}/qr-image`, { responseType: 'blob' }).then(r => r.data),
+
+  checkEmail: (email: string) =>
+    apiClient.get<{ isDuplicate: boolean }>('/members/check-email', { params: { email } }).then(r => r.data),
+
+  statusCounts: (storeId?: string) =>
+    apiClient.get<Record<string, number>>('/members/counts', { params: storeId ? { storeId } : {} }).then(r => r.data),
 };

@@ -128,7 +128,7 @@ export default function TabletDetailPage() {
       {/* 기본 정보 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         <dl className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-          <Item label="소속 지점" value={tablet.store_code ? `${tablet.store_code} ${tablet.store_name ?? ''}` : '-'} />
+          <Item label="소속 지점" value={tablet.store_name ?? '-'} />
           <Item label="배분처 (몰/매장)" value={tablet.sub_store_name ?? '-'} />
           <Item label="모델명" value={tablet.model_name ?? '-'} />
           <Item label="시리얼 번호" value={tablet.serial_number ?? '-'} />

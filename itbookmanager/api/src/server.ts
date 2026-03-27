@@ -15,7 +15,7 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '3001');
 
 app.use(helmet());
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'] }));
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', 'https://lasitbkmanager.web.app'] }));
 app.use(express.json());
 
 // Health check (인증 불필요)
@@ -37,8 +37,7 @@ app.use('/api/v1', authMiddleware, apiRouter);
 
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
-  console.log(`API server running on http://localhost:${PORT}`);
-});
+// 더 이상 server.ts에서 직접 listen하지 않습니다 (배포 환경 포트 충돌 방지)
+// 로컬 실행용은 src/start.ts를 이용하세요.
 
 export default app;

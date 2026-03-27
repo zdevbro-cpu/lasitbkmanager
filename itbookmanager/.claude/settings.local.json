@@ -11,7 +11,8 @@
       "Bash(powershell -Command \"Get-Process -Id 35600 -ErrorAction SilentlyContinue | Select-Object ProcessName, Id, CommandLine\")",
       "Bash(cmd /c \"taskkill /PID 636 /F\")",
       "Bash(cmd /c \"netstat -ano | findstr :5173\")",
-      "Bash(cmd /c \"netstat -ano | findstr \"\"3001 5173 5174\"\"\")"
+      "Bash(cmd /c \"netstat -ano | findstr \"\"3001 5173 5174\"\"\")",
+      "Bash(PGPASSWORD='dckwak0371!@3' psql \"postgresql://postgres.sgxnxbhbyvrmgrzhosyh@aws-0-us-east-1.pooler.supabase.com:6543/postgres\" -c \"SELECT 1\")"
     ]
   }
 }

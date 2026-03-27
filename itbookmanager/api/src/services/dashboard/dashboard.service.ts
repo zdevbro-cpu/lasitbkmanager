@@ -28,9 +28,9 @@ export async function getDashboardStats() {
     `),
     db.query(`
       SELECT
-        COALESCE(SUM(amount_paid) FILTER (WHERE status = 'paid'), 0) AS total_revenue,
-        COALESCE(SUM(refund_amount) FILTER (WHERE status = 'approved'), 0) AS total_refunded,
-        COUNT(*) FILTER (WHERE r.status = 'requested') AS pending_refunds
+        COALESCE(SUM(p.amount) FILTER (WHERE p.payment_status = 'paid'), 0) AS total_revenue,
+        COALESCE(SUM(r.refund_amount) FILTER (WHERE r.status = 'approved'), 0) AS total_refunded,
+        COUNT(r.id) FILTER (WHERE r.status = 'requested') AS pending_refunds
       FROM payments p
       LEFT JOIN refunds r ON r.payment_id = p.id
     `),
@@ -62,7 +62,7 @@ export async function getRecentActivity() {
       FROM refunds r
       JOIN members m ON m.id = r.member_id
       WHERE r.status = 'requested'
-      ORDER BY r.requested_at ASC LIMIT 5
+      ORDER BY r.created_at ASC LIMIT 5
     `),
   ]);
 

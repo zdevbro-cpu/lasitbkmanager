@@ -6,6 +6,8 @@ const router = Router();
 
 router.get('/', requireAdmin, ctrl.list);
 router.post('/', requireAdmin, ctrl.create);
+router.get('/counts', requireAdmin, ctrl.statusCounts);
+router.get('/check-email', requireAdmin, ctrl.checkEmail);
 router.get('/qr/:code', requireAdmin, ctrl.getByQr);
 router.get('/:id/qr-image', requireAdmin, ctrl.getQrImage);
 router.get('/:id', requireAdmin, ctrl.getOne);

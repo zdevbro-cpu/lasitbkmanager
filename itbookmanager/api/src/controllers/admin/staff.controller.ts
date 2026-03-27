@@ -54,3 +54,21 @@ export async function remove(req: Request, res: Response, next: NextFunction) {
     res.json({ success: true });
   } catch (err) { next(err); }
 }
+
+export async function getByQr(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { code } = req.params;
+    const staff = await svc.getStaffByReferralCode(code);
+    if (!staff) return res.status(404).json({ error: 'Staff not found' });
+    res.json(staff);
+  } catch (err) { next(err); }
+}
+
+export async function getByName(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { name } = req.params;
+    const staff = await svc.getStaffByName(decodeURIComponent(name));
+    if (!staff) return res.status(404).json({ error: 'Staff not found' });
+    res.json(staff);
+  } catch (err) { next(err); }
+}

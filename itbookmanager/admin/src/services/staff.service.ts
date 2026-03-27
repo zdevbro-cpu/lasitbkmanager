@@ -12,6 +12,7 @@ export interface StaffMember {
   store_id?: string | null;
   store_code?: string | null;
   store_name?: string | null;
+  referral_code?: string;
 }
 
 export interface CreateStaffResult {
@@ -34,4 +35,10 @@ export const staffService = {
 
   remove: (id: string) =>
     apiClient.delete(`/staff/${id}`).then(r => r.data),
+
+  getByQr: (code: string) =>
+    apiClient.get<StaffMember>(`/staff/qr/${code}`).then(r => r.data),
+
+  getByName: (name: string) =>
+    apiClient.get<StaffMember>(`/staff/name/${encodeURIComponent(name)}`).then(r => r.data),
 };

@@ -68,10 +68,11 @@ export async function distributeCurrentWeekToAll(weekNumber: number) {
       const result = await client.query(
         `INSERT INTO member_content_access (member_id, package_id, week_number)
          VALUES ($1, $2, $3)
-         ON CONFLICT (member_id, package_id) DO NOTHING`,
+         ON CONFLICT (member_id, package_id) DO NOTHING
+         RETURNING id`,
         [m.id, packageId, weekNumber]
       );
-      if (result.rowCount && result.rowCount > 0) distributed++;
+      if (result.rows.length > 0) distributed++;
     }
     await client.query('COMMIT');
   } catch (err) {

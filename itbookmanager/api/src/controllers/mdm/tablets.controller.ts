@@ -53,9 +53,15 @@ export async function update(req: Request, res: Response) {
 
 export async function loan(req: Request, res: Response) {
   try {
-    const { memberId, processedBy } = req.body;
-    if (!memberId) return res.status(400).json({ error: 'memberId required' });
-    res.json(await tabletsService.loanTablet(req.params.id, memberId, processedBy ?? req.user?.adminId));
+    const { memberId, processedBy, officerName } = req.body;
+    if (!memberId && !processedBy && !officerName)
+      return res.status(400).json({ error: '회원 또는 대여 담당자 정보가 필요합니다.' });
+    res.json(await tabletsService.loanTablet(
+      req.params.id,
+      memberId ?? null,
+      processedBy ?? req.user?.adminId,
+      officerName,
+    ));
   } catch (err) {
     const msg = String(err);
     if (msg.includes('not found')) return res.status(404).json({ error: msg });
@@ -69,7 +75,7 @@ export async function returnTablet(req: Request, res: Response) {
     const { conditionOk, conditionNotes } = req.body;
     if (conditionOk === undefined) return res.status(400).json({ error: 'conditionOk required' });
     res.json(await tabletsService.returnTablet(
-      req.params.id, conditionOk, conditionNotes, req.user?.adminId
+      req.params.id, conditionOk, conditionNotes, req.user?.adminId, req.user?.storeId
     ));
   } catch (err) {
     const msg = String(err);
@@ -127,10 +133,19 @@ export async function bulkAssignStore(req: Request, res: Response) {
   try {
     if (req.user?.role !== 'system_admin')
       return res.status(403).json({ error: 'system_admin only' });
-    const { tabletIds, storeId } = req.body as { tabletIds: string[]; storeId: string | null };
+    const { tabletIds, storeId, isRelease } = req.body as { tabletIds: string[]; storeId: string | null; isRelease?: boolean };
     if (!Array.isArray(tabletIds) || tabletIds.length === 0)
       return res.status(400).json({ error: 'tabletIds array required' });
-    res.json(await tabletsService.bulkAssignStore(tabletIds, storeId ?? null));
+    res.json(await tabletsService.bulkAssignStore(tabletIds, storeId ?? null, !!isRelease));
+  } catch (err) { res.status(500).json({ error: String(err) }); }
+}
+
+export async function bulkAssignSubStore(req: Request, res: Response) {
+  try {
+    const { tabletIds, subStoreName } = req.body as { tabletIds: string[]; subStoreName: string | null };
+    if (!Array.isArray(tabletIds) || tabletIds.length === 0)
+      return res.status(400).json({ error: 'tabletIds array required' });
+    res.json(await tabletsService.bulkAssignSubStore(tabletIds, subStoreName ?? null));
   } catch (err) { res.status(500).json({ error: String(err) }); }
 }
 

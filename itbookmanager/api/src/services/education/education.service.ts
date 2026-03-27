@@ -1,56 +1,53 @@
 import { db } from '../../db';
 
-export async function listSessions(params: { memberId?: string; fromDate?: string; toDate?: string }) {
-  const conditions: string[] = ["m.member_type = 'managed'"];
+// las-mgmt education_sessions: id, title, session_date, enrollment_deadline,
+//   max_capacity, current_enrollment, is_active, created_at, updated_at
+
+export async function listSessions(params: { fromDate?: string; toDate?: string; isActive?: boolean }) {
+  const conditions: string[] = [];
   const values: unknown[] = [];
   let i = 1;
 
-  if (params.memberId) { conditions.push(`es.member_id = $${i++}`); values.push(params.memberId); }
-  if (params.fromDate) { conditions.push(`es.session_date >= $${i++}`); values.push(params.fromDate); }
-  if (params.toDate) { conditions.push(`es.session_date <= $${i++}`); values.push(params.toDate); }
+  if (params.fromDate) { conditions.push(`session_date >= $${i++}`); values.push(params.fromDate); }
+  if (params.toDate)   { conditions.push(`session_date <= $${i++}`); values.push(params.toDate); }
+  if (params.isActive !== undefined) { conditions.push(`is_active = $${i++}`); values.push(params.isActive); }
 
-  const where = `WHERE ${conditions.join(' AND ')}`;
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const result = await db.query(
-    `SELECT es.*, m.name AS member_name, m.member_number
-     FROM education_sessions es
-     JOIN members m ON m.id = es.member_id
-     ${where}
-     ORDER BY es.session_date DESC`,
+    `SELECT * FROM education_sessions ${where} ORDER BY session_date DESC`,
     values
   );
   return result.rows;
 }
 
 export async function createSession(data: {
-  memberId: string;
+  title: string;
   sessionDate: string;
-  instructor?: string;
-  attended?: boolean;
-  rating?: number;
-  notes?: string;
-  createdBy?: string;
+  enrollmentDeadline?: string;
+  maxCapacity?: number;
+  isActive?: boolean;
 }) {
   const result = await db.query(
-    `INSERT INTO education_sessions
-       (member_id, session_date, instructor, attended, rating, notes, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    `INSERT INTO education_sessions (title, session_date, enrollment_deadline, max_capacity, is_active)
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
     [
-      data.memberId, data.sessionDate, data.instructor ?? null,
-      data.attended ?? true, data.rating ?? null,
-      data.notes ?? null, data.createdBy ?? null,
+      data.title, data.sessionDate, data.enrollmentDeadline ?? null,
+      data.maxCapacity ?? null, data.isActive ?? true,
     ]
   );
   return result.rows[0];
 }
 
 export async function updateSession(id: string, data: {
-  attended?: boolean; rating?: number; notes?: string; instructor?: string;
+  title?: string; sessionDate?: string; enrollmentDeadline?: string;
+  maxCapacity?: number; isActive?: boolean;
 }) {
   const fields: string[] = [];
   const values: unknown[] = [];
   let i = 1;
   const map: Record<string, string> = {
-    attended: 'attended', rating: 'rating', notes: 'notes', instructor: 'instructor',
+    title: 'title', sessionDate: 'session_date', enrollmentDeadline: 'enrollment_deadline',
+    maxCapacity: 'max_capacity', isActive: 'is_active',
   };
   for (const [k, col] of Object.entries(map)) {
     if (k in data) { fields.push(`${col} = $${i++}`); values.push((data as Record<string, unknown>)[k]); }

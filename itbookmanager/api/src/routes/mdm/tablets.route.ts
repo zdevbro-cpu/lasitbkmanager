@@ -8,6 +8,7 @@ router.get('/', requireAdmin, ctrl.list);
 router.post('/', requireAdmin, ctrl.create);
 router.post('/batch', requireAdmin, ctrl.batchCreate);         // 엑셀 배치 등록
 router.patch('/bulk-assign', requireAdmin, ctrl.bulkAssignStore); // 일괄 라스브러리 배정
+router.patch('/bulk-sub-store', requireAdmin, ctrl.bulkAssignSubStore); // 일괄 하위 매장 배분
 router.get('/qr/:qrCode', requireAdmin, ctrl.getByQr);         // QR 스캔으로 조회
 router.get('/:id', requireAdmin, ctrl.getOne);
 router.put('/:id', requireAdmin, ctrl.update);

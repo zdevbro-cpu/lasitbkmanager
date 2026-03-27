@@ -7,6 +7,7 @@ export interface StorePrefix {
 export const STORE_PREFIXES: StorePrefix[] = [
   { code: 'LB', label: 'LB - 라스브러리' },
   { code: 'LS', label: 'LS - 라스북 매장' },
+  { code: 'LH', label: 'LH - 본사' },
 ];
 
 export const STORE_CODE_REGEX = /^[A-Z]{2}\d{4}$/;
